@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(ggpubr)
 
 ui <- fluidPage(
   sidebarLayout(
@@ -8,7 +9,7 @@ ui <- fluidPage(
                  numericInput(inputId = "population", "Population", value = 100000),
                  numericInput(inputId = "infections", "Infections", value = 150),
                  uiOutput(outputId = "newvals")),
-    mainPanel(plotOutput(outputId = "plots"))
+    mainPanel(plotOutput(outputId = "plot"))
   ))
 
 
@@ -25,8 +26,12 @@ server <- function(input, output) {
     values$total_negative <- values$true_negative + values$false_negative
     values$percent_positive <- round(values$true_positive/values$total_positive * 100, 2)
     values$percent_negative <- round(values$true_negative/values$total_negative * 100, 2)
-    values$table_plot <- data.frame("Part" = c("True positive", "True negative",
+    values$table_plot1 <- data.frame("Part" = c("True positive", "True negative",
                                                "False positive", "False negative"),
+                                    "Amount" = c(values$true_positive, values$true_negative,
+                                                 values$false_positive, values$false_negative))
+    values$table_plot2 <- data.frame("Boolean" = c("True", "True", "False", "False"),
+                                    "Test" = c("Positive", "Negative", "Positive", "Negative"),
                                     "Amount" = c(values$true_positive, values$true_negative,
                                                  values$false_positive, values$false_negative))
   })
@@ -43,11 +48,16 @@ server <- function(input, output) {
     HTML(paste(str1, str2, str3, str4, str5, str6, str7, str8, sep = '<br/>'))
   })
   
-  output$plots <- renderPlot({
-    ggplot(values$table_plot, aes(x=Part, y=Amount, fill=Part))+
+  output$plot <- renderPlot({
+    x <- ggplot(values$table_plot1, aes(x=Part, y=Amount, fill=Part))+
       geom_bar(stat="identity", position="stack")+
       theme_minimal()+
       coord_cartesian(expand=F)
+    y <-     ggplot(values$table_plot2, aes(x=Test, y=Amount, fill=Boolean))+
+      geom_bar(stat="identity", position="fill")+
+      theme_minimal()+
+      coord_cartesian(expand=F)
+    ggarrange(x,y,ncol=1)
   })
   
 }

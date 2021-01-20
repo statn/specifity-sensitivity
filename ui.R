@@ -5,5 +5,5 @@ ui <- fluidPage(
                  numericInput(inputId = "population", "Population", value = 100000),
                  numericInput(inputId = "infections", "Infections", value = 150),
                  uiOutput(outputId = "newvals")),
-    mainPanel(plotOutput(outputId = "plots"))
+    mainPanel(plotOutput(outputId = "plot"))
   ))
